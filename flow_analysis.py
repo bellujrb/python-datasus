@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 
 # Carregar o arquivo CSV
 def load_data(file_name, separator_list):
-    with st.spinner(f"Carregando dados de {file_name}..."):
+    with st.spinner(f"Carregando dados do DATASUS..."):
         try:
             for separator in separator_list:
                 data = pd.read_csv(file_name, sep=separator, low_memory=False)
@@ -67,7 +67,7 @@ def generate_sankey(data, city_origin, selected_specialties, cities, specialties
         )])
 
         # Configuração do layout com tamanho de fonte maior
-        fig.update_layout(font=dict(size=20, color='black'))
+        fig.update_layout(font=dict(size=30, color='black'))
 
         st.plotly_chart(fig, use_container_width=True)
     else:
@@ -102,8 +102,10 @@ def run():
         city_origin = st.selectbox("Selecione a cidade de origem:", list(cities.keys()), format_func=lambda x: f"{cities[x]} ({x})", key='city_origin')
         selected_specialties = st.multiselect("Selecione as especialidades médicas:", list(specialties.keys()), format_func=lambda x: f"{specialties[x]}", key='specialties')
 
-        # Caixa de seleção para escolher o ano, padrão para 2024
         year = st.selectbox("Selecione o ano:", range(2018, 2025), index=range(2018, 2025).index(2024))
 
         if 'city_origin' in st.session_state and 'specialties' in st.session_state and st.session_state.specialties:
             generate_sankey(combined_data, st.session_state.city_origin, st.session_state.specialties, cities, specialties)
+
+if __name__ == "__main__":
+    run()
