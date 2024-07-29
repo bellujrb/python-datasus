@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import time
 
 
 def load_data(file_names, separator_list):
@@ -27,11 +26,10 @@ def calculate_average_cost(data, selected_city, selected_specialities, specialti
     if not data.empty:
         filtered_data = data[(data['munic_mov'] == selected_city) & (data['espec'].isin(selected_specialities))]
         if not filtered_data.empty:
-            # Calcula a soma dos custos e conta as ocorrências antes de calcular a média
             result = filtered_data.groupby('espec').agg({'val_tot': 'sum'})
             result.columns = ['Total Cost']
             result = result.reset_index()
-            result['espec'] = result['espec'].map(specialties_dict)  # Mapeia código para nome
+            result['espec'] = result['espec'].map(specialties_dict)
             result = result[['espec', 'Total Cost']]
             result.rename(columns={'espec': 'Especialidade', 'Total Cost': 'Custo Total'}, inplace=True)
             return result

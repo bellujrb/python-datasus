@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 
-# Carregar o arquivo CSV
+
 def load_data(file_name, separator_list):
     with st.spinner(f"Carregando dados do DATASUS..."):
         try:
@@ -16,10 +16,11 @@ def load_data(file_name, separator_list):
             return pd.DataFrame()
     return pd.DataFrame()
 
+
 def generate_sankey(data, city_origin, selected_specialties, cities, specialties):
     if not data.empty:
         node_labels = [cities[city_origin]]
-        node_colors = ['rgba(0, 0, 255, 0.3)']  # Azul com 30% de transparência
+        node_colors = ['rgba(0, 0, 255, 0.3)']
         link_colors = []
         sources = []
         targets = []
@@ -29,14 +30,14 @@ def generate_sankey(data, city_origin, selected_specialties, cities, specialties
 
         for spec in selected_specialties:
             node_labels.append(specialties[spec])
-            node_colors.append('rgba(0, 255, 0, 0.3)')  # Verde com 30% de transparência
+            node_colors.append('rgba(0, 255, 0, 0.3)')
 
         destination_start_index = len(node_labels)
 
         possible_destinations = [code for code in cities if code != city_origin]
         for dest in possible_destinations:
             node_labels.append(cities[dest])
-            node_colors.append('rgba(255, 0, 0, 0.3)')  # Vermelho com 30% de transparência
+            node_colors.append('rgba(255, 0, 0, 0.3)')
 
         for spec_index, spec in enumerate(selected_specialties, start=specialty_start_index):
             filtered_data = data[(data['munic_res'] == city_origin) & (data['espec'] == spec)]
@@ -47,8 +48,8 @@ def generate_sankey(data, city_origin, selected_specialties, cities, specialties
                     sources.extend([0, spec_index])
                     targets.extend([spec_index, dest_index])
                     values.extend([count, count])
-                    link_colors.append('rgba(0, 0, 255, 0.3)')  # Azul para links da cidade
-                    link_colors.append('rgba(0, 255, 0, 0.3)')  # Verde para links das especialidades
+                    link_colors.append('rgba(0, 0, 255, 0.3)')
+                    link_colors.append('rgba(0, 255, 0, 0.3)')
 
         fig = go.Figure(data=[go.Sankey(
             node=dict(
@@ -66,12 +67,12 @@ def generate_sankey(data, city_origin, selected_specialties, cities, specialties
             )
         )])
 
-        # Configuração do layout com tamanho de fonte maior
         fig.update_layout(font=dict(size=30, color='black'))
 
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.error("Os dados não estão disponíveis.")
+
 
 def run():
     st.title("Gráfico de Fluxo de Pacientes por Especialidade e Período")
@@ -99,13 +100,13 @@ def run():
     if not amb_data.empty and not int_data.empty:
         combined_data = pd.concat([amb_data, int_data], axis=1)
 
-        city_origin = st.selectbox("Selecione a cidade de origem:", list(cities.keys()), format_func=lambda x: f"{cities[x]} ({x})", key='city_origin')
-        selected_specialties = st.multiselect("Selecione as especialidades médicas:", list(specialties.keys()), format_func=lambda x: f"{specialties[x]}", key='specialties')
+        city_origin = st.selectbox("Selecione a cidade de origem:", list(cities.keys()),
+                                   format_func=lambda x: f"{cities[x]} ({x})", key='city_origin')
+        selected_specialties = st.multiselect("Selecione as especialidades médicas:", list(specialties.keys()),
+                                              format_func=lambda x: f"{specialties[x]}", key='specialties')
 
         year = st.selectbox("Selecione o ano:", range(2018, 2025), index=range(2018, 2025).index(2024))
 
         if 'city_origin' in st.session_state and 'specialties' in st.session_state and st.session_state.specialties:
-            generate_sankey(combined_data, st.session_state.city_origin, st.session_state.specialties, cities, specialties)
-
-if __name__ == "__main__":
-    run()
+            generate_sankey(combined_data, st.session_state.city_origin, st.session_state.specialties, cities,
+                            specialties)
